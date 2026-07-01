@@ -13,22 +13,26 @@ function shellQuote(value) {
  * @returns {string}
  */
 export function buildMysqlConnectionCommand(environment) {
-  const host = environment.db_host?.trim();
-  if (!host) {
-    throw new Error("缺少数据库主机，无法生成连接命令");
-  }
-
-  const port = environment.db_port;
   const username = environment.db_username?.trim();
 
-  const parts = ["mysql", `-h ${shellQuote(host)}`];
-  if (port) {
-    parts.push(`-P ${port}`);
+  if (!username) {
+    throw new Error("缺少用户名，无法生成连接命令");
+  }
+
+  const host = environment.db_host?.trim();
+
+  const port = environment.db_port;
+
+  const parts = ["mysql"];
+  if (host) {
+    parts.push(`-h ${shellQuote(host)}`);
+    if (port) {
+      parts.push(`-P ${port}`);
+    }
   }
   if (username) {
     parts.push(`-u ${shellQuote(username)}`);
   }
-
   parts.push("-p");
 
   return parts.join(" ");

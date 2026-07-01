@@ -17,7 +17,7 @@ const hasValue = computed(() => {
 });
 
 const displayValue = computed(() =>
-  hasValue.value ? String(props.value) : "—"
+  hasValue.value ? String(props.value) : ""
 );
 
 async function handleCopy() {

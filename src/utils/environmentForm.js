@@ -6,7 +6,7 @@ export function createDefaultEnvironmentForm() {
     },
     db: {
       host: "",
-      port: 3306,
+      port: null,
       database: "",
       username: "",
       password: "",

@@ -189,7 +189,7 @@ watch(
           <CopyableValue :value="selectedProject.git" />
         </div>
         <p class="detail-description">
-          {{ selectedProject.description || "—" }}
+          {{ selectedProject.description }}
         </p>
       </div>
 
@@ -226,15 +226,15 @@ watch(
                   </el-button>
                 </div>
 
-                <el-descriptions :column="2" border class="env-desc-block">
-                  <el-descriptions-item label="环境名称">
+                <el-descriptions :column="1" border class="env-desc-block" label-width="100px">
+                  <el-descriptions-item label="环境名称" >
                     {{ env.name }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="Git 分支">
+                  <el-descriptions-item label="Git 分支" >
                     <el-tag v-if="env.branch" size="small">{{ env.branch }}</el-tag>
-                    <span v-else>—</span>
+                    <span v-else>&nbsp;</span>
                   </el-descriptions-item>
-                  <el-descriptions-item label="部署地址" :span="2">
+                  <el-descriptions-item label="部署地址" >
                     <el-link
                       v-if="env.url"
                       :href="env.url"
@@ -245,17 +245,17 @@ watch(
                     </el-link>
                     <span v-else>—</span>
                   </el-descriptions-item>
-                  <el-descriptions-item label="环境说明" :span="2">
-                    {{ env.description || "—" }}
+                  <el-descriptions-item label="环境说明" >
+                    {{ env.description }}
                   </el-descriptions-item>
                 </el-descriptions>
 
                 <div class="env-section-title">SSH 配置</div>
-                <el-descriptions :column="1" border class="env-desc-block">
-                  <el-descriptions-item label="主机">
+                <el-descriptions :column="1" border class="env-desc-block" label-width="100px">
+                  <el-descriptions-item label="主机" >
                     <CopyableValue :value="env.ssh_host" />
                   </el-descriptions-item>
-                  <el-descriptions-item label="密码">
+                  <el-descriptions-item label="密码" >
                     <CopyableValue :value="env.ssh_password" />
                   </el-descriptions-item>
                 </el-descriptions>
@@ -272,20 +272,20 @@ watch(
                     复制连接命令
                   </el-button>
                 </div>
-                <el-descriptions :column="1" border class="env-desc-block">
-                  <el-descriptions-item label="主机">
+                <el-descriptions :column="1" border class="env-desc-block" label-width="100px">
+                  <el-descriptions-item label="主机" >
                     <CopyableValue :value="env.db_host" />
                   </el-descriptions-item>
-                  <el-descriptions-item label="端口">
+                  <el-descriptions-item label="端口" >
                     <CopyableValue :value="env.db_port" />
                   </el-descriptions-item>
-                  <el-descriptions-item label="数据库名">
+                  <el-descriptions-item label="数据库名" >
                     <CopyableValue :value="env.db_name" />
                   </el-descriptions-item>
-                  <el-descriptions-item label="用户名">
+                  <el-descriptions-item label="用户名" >
                     <CopyableValue :value="env.db_username" />
                   </el-descriptions-item>
-                  <el-descriptions-item label="密码">
+                  <el-descriptions-item label="密码" >
                     <CopyableValue :value="env.db_password" />
                   </el-descriptions-item>
                 </el-descriptions>
