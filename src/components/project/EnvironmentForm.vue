@@ -20,7 +20,6 @@ const formData = defineModel({
         <el-input
           v-model="formData.ssh.password"
           type="text"
-          show-password
           placeholder="SSH 密码（可选）"
         />
       </el-form-item>
@@ -56,7 +55,6 @@ const formData = defineModel({
         <el-input
           v-model="formData.db.password"
           type="text"
-          show-password
           placeholder="数据库密码"
         />
       </el-form-item>
