@@ -25,3 +25,20 @@ pub struct UpdateProject {
     pub git_url: String,
     pub description: Option<String>,
 }
+
+fn default_page() -> i64 {
+    1
+}
+
+fn default_page_size() -> i64 {
+    20
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ListProjectsQuery {
+    #[serde(default = "default_page")]
+    pub page: i64,
+    #[serde(default = "default_page_size")]
+    pub page_size: i64,
+    pub keyword: Option<String>,
+}

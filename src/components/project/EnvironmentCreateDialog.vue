@@ -100,7 +100,7 @@ function handleClose() {
     :close-on-press-escape="!loading"
     @close="handleClose"
   >
-    <el-scrollbar max-height="60vh">
+    <el-scrollbar class="form-content" max-height="60vh">
       <el-form
         ref="formRef"
         :model="form"
@@ -112,7 +112,7 @@ function handleClose() {
           <el-input v-model="form.name" placeholder="例如 开发环境" />
         </el-form-item>
         <el-form-item label="Git 分支" prop="git_branch">
-          <el-input v-model="form.git_branch" placeholder="例如 develop" />
+          <el-input v-model="form.git_branch" placeholder="例如 dev" />
         </el-form-item>
         <el-form-item label="部署地址" prop="url">
           <el-input
@@ -143,6 +143,10 @@ function handleClose() {
 </template>
 
 <style scoped>
+.form-content {
+  padding: 8px;
+}
+
 .environment-form-dialog :deep(.el-dialog__body) {
   padding-top: 12px;
 }

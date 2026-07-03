@@ -5,7 +5,7 @@ mod db;
 mod migration;
 mod models;
 
-pub use api::{ApiResponse, IdResult};
+pub use api::{ApiResponse, IdResult, PaginatedList};
 pub use crypto::CryptoState;
 pub use db::DbState;
 pub use models::{

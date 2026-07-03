@@ -10,9 +10,35 @@ import { invokeApi } from "./client.js";
  * @property {string} updated_at
  */
 
-/** @returns {Promise<Project[]>} */
-export function get_projects() {
-  return invokeApi("list_projects");
+/**
+ * @typedef {Object} ListProjectsQuery
+ * @property {number} [page]
+ * @property {number} [page_size]
+ * @property {string | null} [keyword]
+ */
+
+/**
+ * @typedef {Object} PaginatedProjects
+ * @property {Project[]} items
+ * @property {number} total
+ * @property {number} page
+ * @property {number} page_size
+ * @property {boolean} has_more
+ */
+
+/**
+ * @param {ListProjectsQuery} [query]
+ * @returns {Promise<PaginatedProjects>}
+ */
+export function get_projects(query = {}) {
+  const keyword = query.keyword?.trim() || null;
+  return invokeApi("list_projects", {
+    query: {
+      page: query.page ?? 1,
+      page_size: query.page_size ?? 20,
+      keyword,
+    },
+  });
 }
 
 /**

@@ -40,6 +40,8 @@ const formData = defineModel({
           :min="1"
           :max="65535"
           controls-position="right"
+          align="left"
+          placeholder="例如 3306"
         />
       </el-form-item>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { provideProjectSelection } from "../../composables/useProjectSelection.js";
 import {
@@ -14,16 +14,68 @@ import ProjectSidebar from "./ProjectSidebar.vue";
 import ProjectDetail from "./ProjectDetail.vue";
 import ProjectCreateDialog from "./ProjectCreateDialog.vue";
 
+const PAGE_SIZE = 20;
+
 const showProjectDialog = ref(false);
 const savingProject = ref(false);
 const editingProject = ref(null);
+const searchKeyword = ref("");
+const loadingProjects = ref(false);
+const hasMoreProjects = ref(false);
+const currentPage = ref(0);
 
 const { projects, selectedId, selectProject } = provideProjectSelection([]);
 
-async function loadProjects() {
-  const list = await get_projects();
-  projects.value = list.map(mapProjectFromApi);
+async function loadProjects({ reset = false } = {}) {
+  if (loadingProjects.value) return;
+
+  const nextPage = reset ? 1 : currentPage.value + 1;
+  loadingProjects.value = true;
+
+  try {
+    const result = await get_projects({
+      page: nextPage,
+      page_size: PAGE_SIZE,
+      keyword: searchKeyword.value,
+    });
+
+    const mapped = result.items.map(mapProjectFromApi);
+
+    if (reset) {
+      projects.value = mapped;
+    } else {
+      const existingIds = new Set(projects.value.map((project) => project.id));
+      projects.value = [
+        ...projects.value,
+        ...mapped.filter((project) => !existingIds.has(project.id)),
+      ];
+    }
+
+    currentPage.value = result.page;
+    hasMoreProjects.value = result.has_more;
+  } catch (error) {
+    const message =
+      error instanceof ApiError ? error.message : "加载项目列表失败";
+    ElMessage.error(message);
+    throw error;
+  } finally {
+    loadingProjects.value = false;
+  }
 }
+
+function handleLoadMoreProjects() {
+  if (!hasMoreProjects.value || loadingProjects.value) return;
+  loadProjects();
+}
+
+let searchTimer = null;
+
+watch(searchKeyword, () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    loadProjects({ reset: true });
+  }, 300);
+});
 
 async function handleSelectProject(project) {
   selectProject(project.id);
@@ -49,12 +101,12 @@ async function handleSubmitProject(form) {
         git_url: form.git_url,
         description: form.description,
       });
-      await loadProjects();
+      await loadProjects({ reset: true });
       selectProject(editingProject.value.id);
       ElMessage.success("项目更新成功");
     } else {
       const created = await create_project(form);
-      await loadProjects();
+      await loadProjects({ reset: true });
       selectProject(created.id);
       ElMessage.success("项目创建成功");
     }
@@ -91,7 +143,7 @@ async function handleDeleteProject(project) {
 
   try {
     await delete_project(project.id);
-    await loadProjects();
+    await loadProjects({ reset: true });
 
     if (projects.value.length > 0) {
       selectProject(projects.value[0].id);
@@ -109,14 +161,12 @@ async function handleDeleteProject(project) {
 
 onMounted(async () => {
   try {
-    await loadProjects();
+    await loadProjects({ reset: true });
     if (projects.value.length > 0) {
       selectProject(projects.value[0].id);
     }
-  } catch (error) {
-    const message =
-      error instanceof ApiError ? error.message : "加载项目列表失败";
-    ElMessage.error(message);
+  } catch {
+    // loadProjects already shows the error message
   }
 });
 </script>
@@ -124,10 +174,14 @@ onMounted(async () => {
 <template>
   <div class="project-manager">
     <ProjectSidebar
+      v-model:search-keyword="searchKeyword"
       :projects="projects"
       :selected-id="selectedId"
+      :loading="loadingProjects"
+      :has-more="hasMoreProjects"
       @select-project="handleSelectProject"
       @add-project="handleAddProject"
+      @end-reached="handleLoadMoreProjects"
     />
     <ProjectDetail
       @edit-project="handleEditProject"

@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
-import { Folder, Plus, Search } from "@element-plus/icons-vue";
+import { Menu, Plus, Search, Loading } from "@element-plus/icons-vue";
 
 const props = defineProps({
   projects: {
@@ -11,25 +10,27 @@ const props = defineProps({
     type: [Number, String],
     default: null,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  hasMore: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["selectProject", "addProject"]);
+const searchKeyword = defineModel("searchKeyword", { type: String, default: "" });
 
-const searchKeyword = ref("");
-
-const filteredProjects = computed(() => {
-  const keyword = searchKeyword.value.trim().toLowerCase();
-  if (!keyword) return props.projects;
-
-  return props.projects.filter(
-    (project) =>
-      project.name.toLowerCase().includes(keyword) ||
-      project.description?.toLowerCase().includes(keyword)
-  );
-});
+const emit = defineEmits(["selectProject", "addProject", "endReached"]);
 
 function handleSelect(project) {
   emit("selectProject", project);
+}
+
+function handleEndReached() {
+  if (props.loading || !props.hasMore) return;
+  emit("endReached");
 }
 </script>
 
@@ -55,27 +56,31 @@ function handleSelect(project) {
       />
     </div>
 
-    <el-scrollbar class="sidebar-list">
-      <ul v-if="filteredProjects.length" class="project-list">
+    <el-scrollbar class="sidebar-list" @end-reached="handleEndReached">
+      <ul v-if="projects.length" class="project-list">
         <li
-          v-for="project in filteredProjects"
+          v-for="project in projects"
           :key="project.id"
           class="project-item"
           :class="{ active: project.id === selectedId }"
           @click="handleSelect(project)"
         >
-          <el-icon class="project-icon"><Folder /></el-icon>
+          <el-icon class="project-icon"><Menu /></el-icon>
           <div class="project-info">
             <span class="project-name">{{ project.name }}</span>
           </div>
         </li>
       </ul>
       <el-empty
-        v-else
+        v-else-if="!loading"
         :image-size="64"
         description="未找到匹配项目"
         class="sidebar-empty"
       />
+      <div v-if="loading" class="sidebar-loading">
+        <el-icon class="is-loading"><Loading /></el-icon>
+        <span>加载中...</span>
+      </div>
     </el-scrollbar>
   </aside>
 </template>
@@ -118,6 +123,16 @@ function handleSelect(project) {
   padding: 32px 0;
 }
 
+.sidebar-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0 16px;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+
 .project-list {
   list-style: none;
   margin: 0;
@@ -129,7 +144,7 @@ function handleSelect(project) {
   align-items: center;
   gap: 10px;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--el-border-radius-base);
   cursor: pointer;
   transition: background-color 0.2s;
 }
